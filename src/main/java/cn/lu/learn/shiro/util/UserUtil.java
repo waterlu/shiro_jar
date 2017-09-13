@@ -22,7 +22,32 @@ public class UserUtil {
     @Resource(name = "redisStringTemplate")
     private RedisTemplate<String, String> redisStringTemplate;
 
+    /**
+     * 从Subject中直接读取当前用户
+     *
+     * @return
+     */
     public UserVO getUser() {
+        Subject subject = SecurityUtils.getSubject();
+        if (null == subject) {
+            return null;
+        }
+
+        Session session = subject.getSession(false);
+        if (null == session) {
+            return null;
+        }
+
+        UserVO user = (UserVO)SecurityUtils.getSubject().getPrincipals().getPrimaryPrincipal();
+        return user;
+    }
+
+    /**
+     * 从Redis中读取当前用户
+     *
+     * @return
+     */
+    public UserVO getUserFromRedis() {
         Subject subject = SecurityUtils.getSubject();
         if (null == subject) {
             return null;
@@ -42,5 +67,4 @@ public class UserUtil {
         UserVO user = JSON.parseObject(jsonString, UserVO.class);
         return user;
     }
-
 }
