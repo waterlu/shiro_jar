@@ -1,9 +1,6 @@
 package cn.lu.learn.shiro.config;
 
-import cn.lu.learn.shiro.security.MyWebSecurityManager;
-import cn.lu.learn.shiro.security.MyWebSessionManager;
-import cn.lu.learn.shiro.security.RedisSessionDAO;
-import cn.lu.learn.shiro.security.UserShiroRealm;
+import cn.lu.learn.shiro.security.*;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.cache.ehcache.EhCacheManager;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
@@ -17,6 +14,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import javax.servlet.Filter;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -34,6 +33,10 @@ public class ShiroConfig {
         ShiroFilterFactoryBean shiroFilterFactoryBean  = new ShiroFilterFactoryBean();
         shiroFilterFactoryBean.setSecurityManager(securityManager);
 
+        Map<String, Filter> filters = new HashMap<>();
+        filters.put("my", new MyFormAuthenticationFilter());
+        shiroFilterFactoryBean.setFilters(filters);
+
         //配置退出过滤器,其中的具体的退出代码Shiro已经替我们实现了
         /**
          * anon（匿名）  org.apache.shiro.web.filter.authc.AnonymousFilter
@@ -50,9 +53,9 @@ public class ShiroConfig {
          * user  表示用户不一定已通过认证,只要曾被Shiro记住过登录状态的用户就可以正常发起请求,比如rememberMe
          */
         Map<String,String> filterChainDefinitionMap = new LinkedHashMap<String,String>();
-        filterChainDefinitionMap.put("/api/users/login", "anon");
-        filterChainDefinitionMap.put("/api/users/logout", "anon");
-        filterChainDefinitionMap.put("/api/users/**", "authc");
+//        filterChainDefinitionMap.put("/api/users/login", "anon");
+//        filterChainDefinitionMap.put("/api/users/logout", "anon");
+        filterChainDefinitionMap.put("/advisor/list", "my");
         shiroFilterFactoryBean.setLoginUrl("/api/users/login");
         shiroFilterFactoryBean.setFilterChainDefinitionMap(filterChainDefinitionMap);
         return shiroFilterFactoryBean;

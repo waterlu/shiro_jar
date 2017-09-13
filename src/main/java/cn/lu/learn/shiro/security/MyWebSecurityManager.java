@@ -80,21 +80,33 @@ public class MyWebSecurityManager extends DefaultWebSecurityManager {
     }
 
     protected SubjectContext resolvePrincipals(SubjectContext context) {
-//        PrincipalCollection principals = context.resolvePrincipals();
-
         String sessionId = null;
         DefaultWebSubjectContext webSubjectContext = (DefaultWebSubjectContext)context;
         HttpServletRequest request = (HttpServletRequest)webSubjectContext.getServletRequest();
         Cookie[] cookies = request.getCookies();
-        for(Cookie cookie : cookies){
-            if (cookie.getName().equalsIgnoreCase("WEBID")) {
-                sessionId = cookie.getValue();
+        if (null != cookies) {
+            for(Cookie cookie : cookies){
+                if (cookie.getName().equalsIgnoreCase("WEBID")) {
+                    sessionId = cookie.getValue();
+                }
             }
+        }
+
+        if (null == sessionId) {
+            return super.resolvePrincipals(context);
         }
 
         HashOperations<String, String, String> hashOperations = redisStringTemplate.opsForHash();
         String jsonString = hashOperations.get(prefix, sessionId);
+        if (null == jsonString) {
+            return super.resolvePrincipals(context);
+        }
+
         UserVO user = JSON.parseObject(jsonString, UserVO.class);
+        if (null == user) {
+            return super.resolvePrincipals(context);
+        }
+
         PrincipalCollection principals = new SimplePrincipalCollection();
         ((SimplePrincipalCollection)principals).add(user, "MyWebSecurityManager");
 
