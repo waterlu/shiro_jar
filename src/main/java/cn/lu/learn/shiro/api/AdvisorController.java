@@ -5,6 +5,8 @@ import cn.zjhf.kingold.common.constant.ResponseCode;
 import cn.zjhf.kingold.common.exception.BusinessException;
 import cn.zjhf.kingold.common.result.ResponseResult;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,6 +24,8 @@ public class AdvisorController {
     @Autowired
     private UserUtil userUtil;
 
+//    @RequiresPermissions("fop:trade:reward:allowance:audit")
+    @RequiresPermissions("fop:advisor:list")
     @RequestMapping(value = "/list", method = RequestMethod.GET)
     public ResponseResult list(String traceID) throws BusinessException {
         ResponseResult responseResult = new ResponseResult();
@@ -33,5 +37,7 @@ public class AdvisorController {
         }
         return responseResult;
     }
+
+
 
 }

@@ -3,6 +3,8 @@ package cn.lu.learn.shiro.config;
 import cn.lu.learn.shiro.security.*;
 import org.apache.shiro.authc.credential.HashedCredentialsMatcher;
 import org.apache.shiro.cache.ehcache.EhCacheManager;
+import org.apache.shiro.spring.LifecycleBeanPostProcessor;
+import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.mgt.DefaultWebSecurityManager;
 import org.apache.shiro.web.servlet.Cookie;
@@ -11,8 +13,11 @@ import org.apache.shiro.web.servlet.SimpleCookie;
 import org.apache.shiro.web.session.mgt.DefaultWebSessionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 
 import javax.servlet.Filter;
 import java.util.HashMap;
@@ -55,7 +60,9 @@ public class ShiroConfig {
         Map<String,String> filterChainDefinitionMap = new LinkedHashMap<String,String>();
 //        filterChainDefinitionMap.put("/api/users/login", "anon");
 //        filterChainDefinitionMap.put("/api/users/logout", "anon");
-        filterChainDefinitionMap.put("/advisor/list", "my");
+
+//        filterChainDefinitionMap.put("/advisor/**", "my");
+
         shiroFilterFactoryBean.setLoginUrl("/api/users/login");
         shiroFilterFactoryBean.setFilterChainDefinitionMap(filterChainDefinitionMap);
         return shiroFilterFactoryBean;
@@ -112,5 +119,25 @@ public class ShiroConfig {
     @Bean(name = "redisSessionDAO")
     public RedisSessionDAO redisSessionDAO() {
         return new RedisSessionDAO();
+    }
+
+    @Bean(name = "lifecycleBeanPostProcessor")
+    public LifecycleBeanPostProcessor lifecycleBeanPostProcessor() {
+        return new LifecycleBeanPostProcessor();
+    }
+
+    @Bean(name = "defaultAdvisorAutoProxyCreator")
+    @DependsOn("lifecycleBeanPostProcessor")
+    public DefaultAdvisorAutoProxyCreator getDefaultAdvisorAutoProxyCreator() {
+        DefaultAdvisorAutoProxyCreator advisorAutoProxyCreator = new DefaultAdvisorAutoProxyCreator();
+        advisorAutoProxyCreator.setProxyTargetClass(true);
+        return advisorAutoProxyCreator;
+    }
+
+    @Bean(name="authorizationAttributeSourceAdvisor")
+    public AuthorizationAttributeSourceAdvisor authorizationSourceAdvisor(MyWebSecurityManager securityManager) {
+        AuthorizationAttributeSourceAdvisor authorizationSourceAdvisor = new AuthorizationAttributeSourceAdvisor();
+        authorizationSourceAdvisor.setSecurityManager(securityManager);
+        return authorizationSourceAdvisor;
     }
 }

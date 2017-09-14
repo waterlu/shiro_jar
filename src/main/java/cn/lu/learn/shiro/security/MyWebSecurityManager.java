@@ -45,7 +45,6 @@ public class MyWebSecurityManager extends DefaultWebSecurityManager {
         Subject subject = this.doCreateSubject(context);
         this.save(subject);
         return subject;
-
 //        String sessionId = subjectContext.getSessionId().toString();
 //        HashOperations<String, String, String> hashOperations = redisStringTemplate.opsForHash();
 //        String jsonString = hashOperations.get(prefix, sessionId);
@@ -114,7 +113,7 @@ public class MyWebSecurityManager extends DefaultWebSecurityManager {
         authenticationInfo.setPrincipals(principals);
         authenticationInfo.setCredentials(user.getPassword());
 
-        context.setAuthenticated(true);
+//        context.setAuthenticated(true);
         context.setAuthenticationInfo(authenticationInfo);
         context.setPrincipals(principals);
 

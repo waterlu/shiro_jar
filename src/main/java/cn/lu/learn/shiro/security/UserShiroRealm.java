@@ -55,7 +55,7 @@ public class UserShiroRealm extends AuthorizingRealm {
         SimpleAuthorizationInfo authorizationInfo = new SimpleAuthorizationInfo();
         UserVO userInfo  = (UserVO)principals.getPrimaryPrincipal();
         authorizationInfo.addRole("finance");
-        authorizationInfo.addStringPermission("fop:trade:reward:allowance:audit");
+        authorizationInfo.addStringPermission("fop:advisor:list");
         return authorizationInfo;
     }
 
